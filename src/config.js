@@ -52,7 +52,7 @@ const preview = {
 
 const useRandomName = false;
 
-const encodeFileName = true;
+const encodeFileName = false;
 
 module.exports = {
   format,
