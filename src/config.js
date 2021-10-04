@@ -52,6 +52,8 @@ const preview = {
 
 const useRandomName = false;
 
+const encodeFileName = true;
+
 module.exports = {
   format,
   baseUri,
@@ -64,5 +66,6 @@ module.exports = {
   shuffleLayerConfigurations,
   debugLogs,
   extraMetadata,
-  useRandomName
+  useRandomName,
+  encodeFileName,
 };

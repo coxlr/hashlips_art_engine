@@ -24,12 +24,14 @@ const {
   debugLogs,
   extraMetadata,
   useRandomName,
+  encodeFileName,
 } = require(path.join(basePath, "/src/config.js"));
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 var metadataList = [];
 var attributesList = [];
 var dnaList = [];
+var fileName = '';
 const firstNames =require(path.join(basePath, "/src/firstNames.json"));
 const lastNames =require(path.join(basePath, "/src/lastNames.json"));
 
@@ -91,9 +93,9 @@ const layersSetup = (layersOrder) => {
   return layers;
 };
 
-const saveImage = (_editionCount) => {
+const saveImage = (fileName) => {
   fs.writeFileSync(
-    `${buildDir}/images/${_editionCount}.png`,
+    `${buildDir}/images/${fileName}.png`,
     canvas.toBuffer("image/png")
   );
 };
@@ -109,14 +111,14 @@ const drawBackground = () => {
   ctx.fillRect(0, 0, format.width, format.height);
 };
 
-const addMetadata = (_dna, _edition, name) => {
+const addMetadata = (_dna, _edition, name, fileName) => {
   let dateTime = Date.now();
   let imageName = name ? name : `#${_edition}`
   let tempMetadata = {
     dna: sha1(_dna.join("")),
     name: imageName,
     description: description,
-    image: `${baseUri}/${_edition}.png`,
+    image: `${baseUri}/${fileName}.png`,
     edition: _edition,
     date: dateTime,
     ...extraMetadata,
@@ -195,15 +197,15 @@ const writeMetaData = (_data) => {
   fs.writeFileSync(`${buildDir}/json/_metadata.json`, _data);
 };
 
-const saveMetaDataSingleFile = (_editionCount) => {
+const saveMetaDataSingleFile = (_editionCount, fileName) => {
   let metadata = metadataList.find((meta) => meta.edition == _editionCount);
   debugLogs
     ? console.log(
-        `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
+        `Writing metadata for edition ${_editionCount}: ${JSON.stringify(metadata)}`
       )
     : null;
   fs.writeFileSync(
-    `${buildDir}/json/${_editionCount}.json`,
+    `${buildDir}/json/${fileName}.json`,
     JSON.stringify(metadata, null, 2)
   );
 };
@@ -268,7 +270,8 @@ const startCreating = async () => {
       if (isDnaUnique(dnaList, newDna)) {
         let results = constructLayerToDna(newDna, layers);
         let loadedElements = [];
-
+        let dnaString = sha1(newDna.join(""))
+        let fileName = encodeFileName ? dnaString : abstractedIndexes[0];
         results.forEach((layer) => {
           loadedElements.push(loadLayerImg(layer));
         });
@@ -287,13 +290,11 @@ const startCreating = async () => {
           debugLogs
             ? console.log("Editions left to create: ", abstractedIndexes)
             : null;
-          saveImage(abstractedIndexes[0]);
-          addMetadata(newDna, abstractedIndexes[0], name);
-          saveMetaDataSingleFile(abstractedIndexes[0]);
+          saveImage(fileName);
+          addMetadata(newDna, abstractedIndexes[0], name, fileName);
+          saveMetaDataSingleFile(abstractedIndexes[0], fileName);
           console.log(
-            `Created edition: ${abstractedIndexes[0]}, with DNA: ${sha1(
-              newDna.join("")
-            )}`
+            `Created edition: ${abstractedIndexes[0]}, with DNA: ${dnaString}`
           );
         });
         dnaList.push(newDna);
@@ -311,6 +312,7 @@ const startCreating = async () => {
       }
     }
     layerConfigIndex++;
+    fileName = '';
   }
   writeMetaData(JSON.stringify(metadataList, null, 2));
 };
