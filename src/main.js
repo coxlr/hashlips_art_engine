@@ -23,12 +23,15 @@ const {
   shuffleLayerConfigurations,
   debugLogs,
   extraMetadata,
+  useRandomName,
 } = require(path.join(basePath, "/src/config.js"));
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 var metadataList = [];
 var attributesList = [];
 var dnaList = [];
+const firstNames =require(path.join(basePath, "/src/firstNames.json"));
+const lastNames =require(path.join(basePath, "/src/lastNames.json"));
 
 const buildSetup = () => {
   if (fs.existsSync(buildDir)) {
@@ -106,11 +109,12 @@ const drawBackground = () => {
   ctx.fillRect(0, 0, format.width, format.height);
 };
 
-const addMetadata = (_dna, _edition) => {
+const addMetadata = (_dna, _edition, name) => {
   let dateTime = Date.now();
+  let imageName = name ? name : `#${_edition}`
   let tempMetadata = {
     dna: sha1(_dna.join("")),
-    name: `#${_edition}`,
+    name: imageName,
     description: description,
     image: `${baseUri}/${_edition}.png`,
     edition: _edition,
@@ -218,6 +222,23 @@ function shuffle(array) {
   return array;
 }
 
+const pickRandom = async (list) => {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+const generateName = async () => {
+  try {
+    // Pick a random name from each list
+    const firstName = await pickRandom(firstNames.data);
+    const lastName = await pickRandom(lastNames.data);
+
+    // Use a template literal to format the full name
+    return `${firstName} ${lastName}`;
+  } catch(error) {
+    console.error('Unable to generate name:', error);
+  }
+}
+
 const startCreating = async () => {
   let layerConfigIndex = 0;
   let editionCount = 1;
@@ -252,6 +273,8 @@ const startCreating = async () => {
           loadedElements.push(loadLayerImg(layer));
         });
 
+        const name = useRandomName ? await generateName() : null;
+
         await Promise.all(loadedElements).then((renderObjectArray) => {
           debugLogs ? console.log("Clearing canvas") : null;
           ctx.clearRect(0, 0, format.width, format.height);
@@ -265,7 +288,7 @@ const startCreating = async () => {
             ? console.log("Editions left to create: ", abstractedIndexes)
             : null;
           saveImage(abstractedIndexes[0]);
-          addMetadata(newDna, abstractedIndexes[0]);
+          addMetadata(newDna, abstractedIndexes[0], name);
           saveMetaDataSingleFile(abstractedIndexes[0]);
           console.log(
             `Created edition: ${abstractedIndexes[0]}, with DNA: ${sha1(

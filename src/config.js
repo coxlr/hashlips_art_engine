@@ -50,6 +50,8 @@ const preview = {
   imageName: "preview.png",
 };
 
+const useRandomName = false;
+
 module.exports = {
   format,
   baseUri,
@@ -62,4 +64,5 @@ module.exports = {
   shuffleLayerConfigurations,
   debugLogs,
   extraMetadata,
+  useRandomName
 };
