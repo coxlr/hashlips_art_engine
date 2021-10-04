@@ -7,7 +7,7 @@ const { MODE } = require(path.join(basePath, "src/blendMode.js"));
 const projectName = 'NFT Project Item'; //Used for the name in the json file. e.g. NFT Project Item #1
 const description =
   "This is the description of your NFT project, remember to replace this";
-const baseUri = "ipfs://test";
+const baseUri = "ipfs://NewUriToReplace";
 
 const layerConfigurations = [
   {
