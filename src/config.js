@@ -50,7 +50,7 @@ const preview = {
   imageName: "preview.png",
 };
 
-const useRandomName = false;
+const useRandomName = true;
 
 const encodeFileName = true;
 

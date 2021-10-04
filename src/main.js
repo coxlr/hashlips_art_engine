@@ -31,7 +31,6 @@ const ctx = canvas.getContext("2d");
 var metadataList = [];
 var attributesList = [];
 var dnaList = [];
-var fileName = '';
 const firstNames =require(path.join(basePath, "/src/firstNames.json"));
 const lastNames =require(path.join(basePath, "/src/lastNames.json"));
 
@@ -276,7 +275,7 @@ const startCreating = async () => {
           loadedElements.push(loadLayerImg(layer));
         });
 
-        const name = useRandomName ? await generateName() : null;
+        let name = useRandomName ? await generateName() : null;
 
         await Promise.all(loadedElements).then((renderObjectArray) => {
           debugLogs ? console.log("Clearing canvas") : null;
@@ -312,7 +311,6 @@ const startCreating = async () => {
       }
     }
     layerConfigIndex++;
-    fileName = '';
   }
   writeMetaData(JSON.stringify(metadataList, null, 2));
 };
