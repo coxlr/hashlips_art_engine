@@ -4,6 +4,7 @@ const path = require("path");
 const isLocal = typeof process.pkg === "undefined";
 const basePath = isLocal ? process.cwd() : path.dirname(process.execPath);
 const { MODE } = require(path.join(basePath, "src/blendMode.js"));
+const projectName = 'NFT Project Item'; //Used for the name in the json file. e.g. NFT Project Item #1
 const description =
   "This is the description of your NFT project, remember to replace this";
 const baseUri = "ipfs://NewUriToReplace";
@@ -66,6 +67,7 @@ module.exports = {
   shuffleLayerConfigurations,
   debugLogs,
   extraMetadata,
+  projectName,
   useRandomName,
   encodeFileName,
 };

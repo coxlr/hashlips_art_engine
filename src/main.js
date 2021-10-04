@@ -23,6 +23,7 @@ const {
   shuffleLayerConfigurations,
   debugLogs,
   extraMetadata,
+  projectName,
   useRandomName,
   encodeFileName,
 } = require(path.join(basePath, "/src/config.js"));
@@ -110,9 +111,12 @@ const drawBackground = () => {
   ctx.fillRect(0, 0, format.width, format.height);
 };
 
-const addMetadata = (_dna, _edition, name, fileName) => {
+const addMetadata = (_dna, _edition, fileName) => {
   let dateTime = Date.now();
-  let imageName = name ? name : `#${_edition}`
+
+  let name = useRandomName ? generateName() : null;
+  let title = projectName.length > 0 ? `${projectName} #${_edition}` : `#${_edition}`;
+  let imageName = name ? `${title} - ${name}` : title;
   let tempMetadata = {
     dna: sha1(_dna.join("")),
     name: imageName,
@@ -223,15 +227,15 @@ function shuffle(array) {
   return array;
 }
 
-const pickRandom = async (list) => {
+const pickRandom = (list) => {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-const generateName = async () => {
+const generateName = () => {
   try {
     // Pick a random name from each list
-    const firstName = await pickRandom(firstNames.data);
-    const lastName = await pickRandom(lastNames.data);
+    const firstName = pickRandom(firstNames.data);
+    const lastName = pickRandom(lastNames.data);
 
     // Use a template literal to format the full name
     return `${firstName} ${lastName}`;
@@ -275,8 +279,6 @@ const startCreating = async () => {
           loadedElements.push(loadLayerImg(layer));
         });
 
-        let name = useRandomName ? await generateName() : null;
-
         await Promise.all(loadedElements).then((renderObjectArray) => {
           debugLogs ? console.log("Clearing canvas") : null;
           ctx.clearRect(0, 0, format.width, format.height);
@@ -290,7 +292,7 @@ const startCreating = async () => {
             ? console.log("Editions left to create: ", abstractedIndexes)
             : null;
           saveImage(fileName);
-          addMetadata(newDna, abstractedIndexes[0], name, fileName);
+          addMetadata(newDna, abstractedIndexes[0], fileName);
           saveMetaDataSingleFile(abstractedIndexes[0], fileName);
           console.log(
             `Created edition: ${abstractedIndexes[0]}, with DNA: ${dnaString}`
