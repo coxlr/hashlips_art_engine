@@ -50,9 +50,9 @@ const preview = {
   imageName: "preview.png",
 };
 
-const useRandomName = true;
+const useRandomName = false;
 
-const encodeFileName = true;
+const encodeFileName = false;
 
 module.exports = {
   format,
